@@ -2,11 +2,81 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import requests
 
-from backend.roadmap_engine import career_roadmaps
-from backend.skill_gap_engine import career_skills
+# =========================================
+# Career Roadmaps
+# =========================================
+
+career_roadmaps = {
+
+    "Data Scientist": [
+        "Learn Python",
+        "Learn Pandas & NumPy",
+        "Study Machine Learning",
+        "Build Projects",
+        "Learn Deep Learning"
+    ],
+
+    "AI Engineer": [
+        "Learn Python",
+        "Learn Machine Learning",
+        "Learn Deep Learning",
+        "Build AI Projects",
+        "Deploy Models"
+    ],
+
+    "Web Developer": [
+        "Learn HTML",
+        "Learn CSS",
+        "Learn JavaScript",
+        "Learn React",
+        "Build Full Stack Projects"
+    ],
+
+    "UI/UX Designer": [
+        "Learn Figma",
+        "Learn UX Principles",
+        "Build Design Portfolio",
+        "Practice Wireframing"
+    ]
+}
 
 # =========================================
-# Page Configuration
+# Career Skills
+# =========================================
+
+career_skills = {
+
+    "Data Scientist": [
+        "Python",
+        "Machine Learning",
+        "SQL",
+        "Pandas"
+    ],
+
+    "AI Engineer": [
+        "Python",
+        "Deep Learning",
+        "TensorFlow",
+        "Machine Learning"
+    ],
+
+    "Web Developer": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React"
+    ],
+
+    "UI/UX Designer": [
+        "Figma",
+        "Creativity",
+        "Wireframing",
+        "UI Design"
+    ]
+}
+
+# =========================================
+# Streamlit Config
 # =========================================
 
 st.set_page_config(
@@ -70,7 +140,7 @@ st.write(
 )
 
 # =========================================
-# User Inputs
+# Inputs
 # =========================================
 
 skills = st.text_input(
@@ -89,164 +159,106 @@ personality = st.selectbox(
 )
 
 # =========================================
-# Recommendation Button
+# Recommendation Logic
 # =========================================
 
 if st.button("🚀 Recommend Career"):
 
     if skills and interests:
 
-        try:
+        # Temporary Local Recommendation System
 
-            # Send request to backend API
-            response = requests.post(
-                "http://127.0.0.1:8000/recommend",
-                json={
-                    "skills": skills,
-                    "interests": interests,
-                    "personality": personality
-                }
-            )
+        results = [
+            ("Data Scientist", 95),
+            ("AI Engineer", 90),
+            ("Web Developer", 75),
+            ("UI/UX Designer", 65)
+        ]
 
-            # Convert response to JSON
-            data = response.json()
+        st.subheader("✨ Recommended Careers")
 
-            # Extract recommendations
-            results = data["recommendations"]
-
-            st.subheader("✨ Recommended Careers")
-
-            # =========================================
-            # Show Recommendations
-            # =========================================
-
-            for career, score in results:
-
-                st.markdown(f"""
-                <div class="result-card">
-
-                <h3>🎓 {career}</h3>
-
-                <p>📊 Match Score: <b>{score}%</b></p>
-
-                </div>
-                """, unsafe_allow_html=True)
-
-                # =========================================
-                # Roadmap
-                # =========================================
-
-                roadmap = career_roadmaps.get(career, [])
-
-                if roadmap:
-
-                    st.markdown("#### 🛣 Career Roadmap")
-
-                    for step in roadmap:
-                        st.write(f"✅ {step}")
-
-                # =========================================
-                # Skill Gap Analysis
-                # =========================================
-
-                st.markdown("#### 📈 Skill Gap Analysis")
-
-                required_skills = career_skills.get(career, [])
-
-                user_skills = [
-                    skill.strip().lower()
-                    for skill in skills.split(",")
-                ]
-
-                missing_skills = []
-
-                for skill in required_skills:
-
-                    if skill.lower() not in user_skills:
-                        missing_skills.append(skill)
-
-                if missing_skills:
-
-                    st.write("🔍 Missing Skills:")
-
-                    for skill in missing_skills:
-                        st.write(f"❌ {skill}")
-
-                else:
-                    st.success("✅ You already match most required skills!")
-
-            # =========================================
-            # Career Match Chart
-            # =========================================
-
-            st.subheader("📊 Career Match Analysis")
-
-            careers = [
-                career
-                for career, score in results
-            ]
-
-            scores = [
-                score
-                for career, score in results
-            ]
-
-            fig, ax = plt.subplots()
-
-            ax.bar(careers, scores)
-
-            ax.set_ylabel("Match Percentage")
-
-            ax.set_title("Career Match Analysis")
-
-            st.pyplot(fig)
-
-        except:
-
-            st.error("⚠️ Backend server is not running.")
-
-    else:
-
-        st.warning("⚠️ Please enter skills and interests.")
-
-# =========================================
-# Recommendation History
-# =========================================
-
-st.subheader("📜 Recommendation History")
-
-try:
-
-    history_response = requests.get(
-        "http://127.0.0.1:8000/history"
-    )
-
-    history_data = history_response.json()
-
-    history = history_data["history"]
-
-    if history:
-
-        for row in history:
+        for career, score in results:
 
             st.markdown(f"""
             <div class="result-card">
 
-            <h4>🧠 Personality: {row[3]}</h4>
+            <h3>🎓 {career}</h3>
 
-            <p><b>💻 Skills:</b> {row[1]}</p>
-
-            <p><b>❤️ Interests:</b> {row[2]}</p>
-
-            <p><b>🎯 Recommended Careers:</b> {row[4]}</p>
+            <p>📊 Match Score: <b>{score}%</b></p>
 
             </div>
             """, unsafe_allow_html=True)
 
+            # =========================================
+            # Roadmap
+            # =========================================
+
+            roadmap = career_roadmaps.get(career, [])
+
+            if roadmap:
+
+                st.markdown("#### 🛣 Career Roadmap")
+
+                for step in roadmap:
+                    st.write(f"✅ {step}")
+
+            # =========================================
+            # Skill Gap Analysis
+            # =========================================
+
+            st.markdown("#### 📈 Skill Gap Analysis")
+
+            required_skills = career_skills.get(career, [])
+
+            user_skills = [
+                skill.strip().lower()
+                for skill in skills.split(",")
+            ]
+
+            missing_skills = []
+
+            for skill in required_skills:
+
+                if skill.lower() not in user_skills:
+                    missing_skills.append(skill)
+
+            if missing_skills:
+
+                st.write("🔍 Missing Skills:")
+
+                for skill in missing_skills:
+                    st.write(f"❌ {skill}")
+
+            else:
+
+                st.success("✅ You already match most required skills!")
+
+        # =========================================
+        # Chart
+        # =========================================
+
+        st.subheader("📊 Career Match Analysis")
+
+        careers = [
+            career
+            for career, score in results
+        ]
+
+        scores = [
+            score
+            for career, score in results
+        ]
+
+        fig, ax = plt.subplots()
+
+        ax.bar(careers, scores)
+
+        ax.set_ylabel("Match Percentage")
+
+        ax.set_title("Career Match Analysis")
+
+        st.pyplot(fig)
+
     else:
 
-        st.info("No recommendation history found.")
-
-except:
-
-    st.error("⚠️ Backend server is not running.")
+        st.warning("⚠️ Please enter skills and interests.")
